@@ -18,7 +18,7 @@ srv = 'ws://127.0.0.1:8086'
 # Calc 1+2+....n 
 n = 100000000
 # split s tasks
-s = 4
+s = 10
 # show
 p_flag = 1
 

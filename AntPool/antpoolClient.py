@@ -6,16 +6,13 @@
 
 '''
 
-__version__ = '0.1'
+__version__ = '0.11'
 __author__ = 'Charles Lai'
 
 from tornado.ioloop import IOLoop
 from tornado import gen
 from tornado.websocket import websocket_connect
 import json, time, pickle, base64, sys
-
-# 参数配置
-srvurl = 'ws://127.0.0.1:8086'
 
 #
 # 返回：设备操作系统类型、总内存、剩余内存
@@ -57,7 +54,7 @@ def getCPU():
 #   
 class rClient(object):
     def __init__(self, url, timeout=10):
-        self.url = url + '/ws'
+        self.url = url
         self.timeout = timeout
         self.runflag = 1
         self.ioloop = IOLoop.current()
@@ -85,7 +82,7 @@ class rClient(object):
         self.cID = 0
         print('Try Connect to Server : ', self.url)
         try:
-            self.ws = yield websocket_connect(self.url)
+            self.ws = yield websocket_connect(self.url+'/ws')
         except:
             pass
         else:
@@ -164,7 +161,11 @@ class rClient(object):
 
 def main():
     # 获取服务器参数
-    if len(sys.argv)>1: srvurl =  sys.argv[1]
+    if len(sys.argv)>1:
+        srvurl =  sys.argv[1]
+    else:
+        # 默认参数
+        srvurl = 'ws://127.0.0.1:8086'
     # 启动资源客户端
     rClient(srvurl, 5)
 

@@ -8,7 +8,7 @@
 
 '''
 
-__version__ = '0.1'
+__version__ = '0.11'
 __author__ = 'Charles Lai'
 
 import tornado.gen, tornado.ioloop

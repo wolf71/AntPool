@@ -5,7 +5,7 @@ with open('Readme.md', 'r') as f:
 
 setuptools.setup(
     name = 'AntPool',
-    version = '0.1',
+    version = '0.11',
     author = 'Charles Lai',
     author_email = '',
     description = 'AntPool',
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type = 'text/markdown',
     url = 'https://github.com/wolf71/AntPool',
     packages = ['AntPool'],   #setuptools.find_packages(),
-    install_requires=['tornado==6.1.0','websocket-client>=1.0'],
+    install_requires=['tornado==6.1.0'],
     entry_points={
         'console_scripts': [
             'antpoolsrv = AntPool.antpoolSrv:main',
