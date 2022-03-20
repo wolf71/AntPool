@@ -6,7 +6,7 @@
 
 '''
 
-__version__ = '0.11'
+__version__ = '0.12'
 __author__ = 'Charles Lai'
 
 from tornado.ioloop import IOLoop
@@ -42,7 +42,7 @@ def getMEM():
 # 
 def getCPU():
     import time
-    bt,tmp = time.time(),0.0
+    bt, tmp = time.time(), 0.0
     for i in range(3000000):
         tmp = tmp + (i/3721.523 * 3.12345678)/6.23
     tspent =  int((1/(time.time()-bt))*1000)

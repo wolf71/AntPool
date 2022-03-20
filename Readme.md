@@ -13,6 +13,14 @@
 	- You can use all your devices at home to help you improve your computing performance, or you can ask your colleagues at work to contribute some of their CPU cores to help you achieve complex computations.
 	- All computing resources are connected to a server-driven cluster network by running a resource client, which can be joined and quit flexibly.
 	- No need to learn new concepts, as you only need to understand Python's native concurrent.futures.Executor, as the AntPool classes are same.
+- **Mobile Device Support** iPad is a great tool, and there are already many great apps that run Python and iPython Notebook, but due to iOS security restrictions, many libraries can't be installed, Python also don't support multi-processing. With AntPool, you can call a multi-machine cluster directly on the iPad and run features on the cluster that are not available on the iPad or get more performance.
+	- iPad Python Apps
+		- Pythonista (requires [stash](https://github.com/ywangd/stash) , for pip support)
+		- Pyto
+		- CodeApp
+	- iPad iPython Notebook/Jupyter Apps
+		- Juno
+		- Carnets
 
 ## How
 - Runtime requirements: 

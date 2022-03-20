@@ -8,7 +8,7 @@
 
 '''
 
-__version__ = '0.11'
+__version__ = '0.12'
 __author__ = 'Charles Lai'
 
 import tornado.gen, tornado.ioloop
@@ -227,6 +227,9 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             try:
                 i_len = len(message)
                 cinfo = json.loads(message)
+                # 避免传入的数据非 JSON 而引发后续解析出错
+                if type(cinfo) != dict:
+                    raise RuntimeError('WebSock_on_message Format error.')
             except:
                 logging.error('WebSock_on_message input parameter JSON parsing error!')
             else:

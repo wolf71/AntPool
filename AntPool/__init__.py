@@ -1,1 +1,1 @@
-from AntPool.AntPool import AntPoolExecutor
+from AntPool.AntPool import AntPoolExecutor, __version__, __author__

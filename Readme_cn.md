@@ -13,6 +13,14 @@
 	- 你可以在家里, 将你的所有设备利用起来, 帮助你提升计算性能; 你也可以让公司的同事将部分CPU内核贡献出来帮你实现复杂计算。
 	- 所有的计算资源通过运行 资源客户端 来接入服务器维系的集群网络, 可以灵活的加入、退出。
 	- 无需学习新的概念，因为你只需要理解 Python 原生的 concurrent.futures.Executor 就可以了, 因为 AntPool 的类与此完全一致。
+- **移动设备支持**, iPad是很好的工具，已经有很多优秀的应用可以运行 Python 和 iPython Notebook, 但是由于 iOS 的安全限制, 很多库无法安装, 并且无法支持多进程运行, 借助 AntPool 可以在 iPad 上直接调用部署好的多机集群，在集群上运行那些无法在 iPad 上实现的功能或获取更大性能。
+	- iPad Python 支持应用
+		- Pythonista (需要安装 [stash](https://github.com/ywangd/stash) 以便支持pip)
+		- Pyto
+		- CodeApp
+	- iPad iPython Notebook / Jupyter 支持应用
+		- Juno
+		- Carnets
 
 ## How
 - 运行环境要求: 

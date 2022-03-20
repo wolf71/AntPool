@@ -5,7 +5,7 @@
 
 '''
 
-__version__ = '0.11'
+__version__ = '0.12'
 __author__ = 'Charles Lai'
 
 import json, time, threading
@@ -29,8 +29,12 @@ class AntPoolExecutor(concurrent.futures._base.Executor):
     - shutdown(wait=True)
   '''
 
-  # 类变量, 用于存储类共用的 消息发送/接收 独立线程
-  share_t = None
+  # 类变量, 用于存储 类消息接收 loop event
+  loop = None
+
+  # 负责异步发送 WebSocket 消息 
+  async def wssent(self, info):
+    await self.ws.write_message(info)
 
   # WebSocket 接收信息处理 （以独立线程运行，不会造成阻塞）
   def _wsRecv(self, srvurl):
@@ -39,14 +43,6 @@ class AntPoolExecutor(concurrent.futures._base.Executor):
       # 通过传入的 loop 参数，将当前线程的 事件循环 设置好，并且启动
       asyncio.set_event_loop(loop)
       loop.run_forever()
-
-    # websocket 消息发送循环 (从消息队列获取数据,发送)
-    async def rloop(q, loop):
-      while self.RecvLoop_flag:
-        info =  await q.get()
-        # 收到退出信号, 退出 (因上面 await q.get 在没消息时被挂起，通过 recvLoop_flag 无效)
-        if info == '@QqQ@': break
-        await self.ws.write_message(info)
 
     # websocket 消息接收循环
     async def run(srvurl, loop):
@@ -96,15 +92,14 @@ class AntPoolExecutor(concurrent.futures._base.Executor):
         else:           # 数据接收错误，则退出循环
           self.RecvLoop_flag = 0
       
-    # 以独立线程运行，负责接收所有回包数据
-    self.loop = asyncio.get_event_loop()  #new_event_loop()  get_event_loop()    
-    if not AntPoolExecutor.share_t:
-      AntPoolExecutor.share_t = threading.Thread(target=_start_thread_loop, args=(self.loop,))
-      AntPoolExecutor.share_t.daemon = True
-      AntPoolExecutor.share_t.start()
-    # 启动 websocket 接收/发送 消息循环
-    asyncio.run_coroutine_threadsafe(run(srvurl, self.loop), self.loop)
-    asyncio.run_coroutine_threadsafe(rloop(self.wsQ, self.loop), self.loop)
+    # 以 独立线程 运行 一个独立的 Loop event ，负责接收所有回包数据
+    if not AntPoolExecutor.loop:
+      AntPoolExecutor.loop = asyncio.new_event_loop()
+      t = threading.Thread(target=_start_thread_loop, args=(AntPoolExecutor.loop,))
+      t.daemon = True
+      t.start()
+    # 启动 websocket 接收循环
+    asyncio.run_coroutine_threadsafe(run(srvurl, AntPoolExecutor.loop), AntPoolExecutor.loop)
 
   def __init__(self, srvurl, max_workers=8, rtype = 0, user='user',pwd='pwd'):
     '''
@@ -121,7 +116,6 @@ class AntPoolExecutor(concurrent.futures._base.Executor):
     self.execq_cnt = 0
     self.Max_execq = max_workers
     self.rtype = rtype
-    self.wsQ = asyncio.Queue()    
     # 用于保存正在执行的任务id与Future对象 {id:future对象}
     self._tasks={}
     self.ws = None
@@ -141,9 +135,6 @@ class AntPoolExecutor(concurrent.futures._base.Executor):
           time.sleep(0.05)
     # 设置 ws 接收循环退出标志
     self.RecvLoop_flag = 0
-    # 设置 ws 发送循环退出标志 (通过发送消息方式来激活)
-    self.wsQ.put_nowait('@QqQ@')
-    self.wsQ._loop._write_to_self()
     # 关闭 websocket 
     self.ws.close()
 
@@ -167,10 +158,8 @@ class AntPoolExecutor(concurrent.futures._base.Executor):
         # 如果有太多等待任务，则等待任务完成才继续
         while self.execq_cnt > self.Max_execq:
             time.sleep(0.05)
-        # 通过服务器发送调用指令，指令将通过回调返回结果
-        self.wsQ.put_nowait(json.dumps({'c':'JOB','r':'1','s':self.tID,'v':{'type':self.rtype,'code':rcode}}))
-        # 在线程安全的情况下写入数据
-        self.wsQ._loop._write_to_self()
+        # 通过线程安全的模式, 将要发送的数据通过 websocket 给服务器发送调用指令，指令将通过回调返回结果
+        asyncio.run_coroutine_threadsafe( self.wssent(json.dumps({'c':'JOB','r':'1','s':self.tID,'v':{'type':self.rtype,'code':rcode}})), AntPoolExecutor.loop )
         # 将要运行的函数、参数记录下来，发送到远端；而后等待返回结果，将序号和 f 绑定
         f = concurrent.futures._base.Future()
         self._tasks[self.tID] = f

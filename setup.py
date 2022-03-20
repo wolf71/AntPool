@@ -5,7 +5,7 @@ with open('Readme.md', 'r') as f:
 
 setuptools.setup(
     name = 'AntPool',
-    version = '0.11',
+    version = '0.12',
     author = 'Charles Lai',
     author_email = '',
     description = 'AntPool',
