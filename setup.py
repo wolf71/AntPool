@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type = 'text/markdown',
     url = 'https://github.com/wolf71/AntPool',
     packages = ['AntPool'],   #setuptools.find_packages(),
-    install_requires=['tornado==6.1.0'],
+    install_requires=['tornado==6.1'],
     entry_points={
         'console_scripts': [
             'antpoolsrv = AntPool.antpoolSrv:main',
